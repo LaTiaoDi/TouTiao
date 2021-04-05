@@ -27,7 +27,10 @@
     <!-- /联想建议 -->
 
     <!-- 历史记录 -->
-    <search-history v-else />
+    <search-history v-else
+                    :search-history='searchHistory'
+                    @delHistory='searchHistory = []'
+                    @search='onSearch' />
     <!-- /历史记录 -->
   </div>
 </template>
@@ -36,6 +39,7 @@
 import SearchHistory from './components/search-history'
 import SearchSuggestion from './components/search-suggestion'
 import SearchResult from './components/search-result'
+import { setItem, getItem } from '@/utils/storage'
 
 export default {
   name: 'SearchIndex',
@@ -48,17 +52,27 @@ export default {
   data() {
     return {
       searchEnter: false,
-      searchText: ''
+      searchText: '',
+      searchHistory: getItem('SearchHistory') //搜索历史记录
     }
   },
   computed: {},
-  watch: {},
+  watch: {
+    searchHistory(value) {
+      setItem('SearchHistory', value)
+    }
+  },
   created() {},
   mounted() {},
   methods: {
     onSearch(val) {
+      this.searchText = val
+      const index = this.searchHistory.indexOf(this.searchText) // 索引
+      if (index !== -1) {
+        this.searchHistory.splice(index, 1) // 如果搜索过，就删除，然后重新添加到最上方
+      }
+      this.searchHistory.unshift(this.searchText)
       this.searchEnter = true
-      console.log(val)
     },
     onCancel() {
       this.$router.back()

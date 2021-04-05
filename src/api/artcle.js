@@ -7,3 +7,9 @@ export const getArticles = (params) => {
 		params,
 	})
 }
+export const getDetail = (params) => {
+	return request({
+		method: 'GET',
+		url: '/v1_0/articles/' + params,
+	})
+}
