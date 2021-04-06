@@ -64,7 +64,7 @@ export default {
           with_top: 1
         })
         const { results } = data.data
-        console.log(results)
+
         this.list.push(...results)
         this.loading = false
         if (results.length) {

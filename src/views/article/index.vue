@@ -37,17 +37,23 @@
           <div slot="label"
                class="publish-date">{{article.pubdate | relativeTime}}</div>
 
-          <van-button v-if="!article.is_followed"
+          <follow-user :is-followed='article.is_followed'
+                       :aut_id='article.aut_id' />
+          <!-- <van-button v-if="!article.is_followed"
                       class="follow-btn"
                       type="info"
                       color="#3296fa"
                       round
                       size="small"
-                      icon="plus">关注</van-button>
+                      icon="plus"
+                      :loading='BtnLoading'
+                      @click='btnFollow'>关注</van-button>
           <van-button v-else
                       class="follow-btn"
                       round
-                      size="small">已关注</van-button>
+                      size="small"
+                      :loading='BtnLoading'
+                      @click='btnFollow'>已关注</van-button> -->
         </van-cell>
         <!-- /用户信息 -->
 
@@ -56,20 +62,28 @@
              ref="articleCt"
              v-html="article.content"></div>
         <van-divider>正文结束</van-divider>
-
+        <!-- 评论功能 -->
+        <comment-article :articleId="articleId"
+                         @onload='EventCommentList'
+                         :list='commentList' />
         <!-- 底部区域 -->
         <div class="article-bottom">
           <van-button class="comment-btn"
                       type="default"
                       round
-                      size="small">写评论</van-button>
+                      size="small"
+                      @click='ispostShow = true'>写评论</van-button>
           <van-icon name="comment-o"
-                    info="123"
+                    :info="commentCount"
                     color="#777" />
-          <van-icon color="#777"
-                    name="star-o" />
-          <van-icon color="#777"
-                    name="good-job-o" />
+          <!-- <van-icon color="#777"
+                    name="star-o" /> -->
+          <collect-article v-model="article.is_collected"
+                           :id='article.art_id' />
+          <!-- <van-icon color="#777"
+                    name="good-job-o" /> -->
+          <like-artcle v-model="article.attitude"
+                       :id='article.art_id' />
           <van-icon name="share"
                     color="#777777"></van-icon>
         </div>
@@ -95,16 +109,32 @@
       </div>
       <!-- /加载失败：其它未知错误（例如网络原因或服务端异常） -->
     </div>
+    <van-popup v-model="ispostShow"
+               position="bottom">
 
+      <post-comment :id='article.art_id'
+                    @success='onPostSuccess' />
+    </van-popup>
   </div>
 </template>
 
 <script>
+import postComment from './components/comment-post'
+import commentArticle from './components/article-comment'
+import collectArticle from '@//components/collect-article'
+import followUser from '@/components/follow-user'
+import likeArtcle from '@//components/like-article'
 import { getDetail } from '@/api/artcle'
 import { ImagePreview } from 'vant'
 export default {
   name: 'ArticleIndex',
-  components: {},
+  components: {
+    followUser,
+    collectArticle,
+    likeArtcle,
+    commentArticle,
+    postComment
+  },
   props: {
     articleId: {
       type: [Number, String, Object],
@@ -115,7 +145,11 @@ export default {
     return {
       article: {}, //文章详细
       loading: true,
-      status: 'gada'
+      status: 'gada',
+      BtnLoading: false,
+      commentCount: 0,
+      ispostShow: false, //评论列表控件
+      commentList: []
     }
   },
   computed: {},
@@ -147,14 +181,19 @@ export default {
         ;(this.loading = false), console.log('获取文章详细失败')
       }
     },
+    onPostSuccess(data) {
+      // 评论添加组件发送请求
+      this.ispostShow = false
+      //评论列表头部添加评论内容
+      this.commentList.unshift(data.data.new_obj) //
+    },
     onClickLeft() {
       this.$router.back()
     },
     perviewImage() {
+      //图片切换插件
       const ac = this.$refs.articleCt
       const img = ac.querySelectorAll('img')
-      // console.log(img[0].dataset.src)
-      // console.log(img[0].src)
       const images = []
       img.forEach((element, index) => {
         images.push(element.dataset.src)
@@ -165,6 +204,10 @@ export default {
           })
         }
       })
+    },
+    EventCommentList(data) {
+      this.commentList = data.results
+      this.commentCount = data.total_count
     }
   }
 }
@@ -276,7 +319,7 @@ export default {
       line-height: 46px;
       color: #a7a7a7;
     }
-    .van-icon {
+    /deep/ .van-icon {
       font-size: 40px;
       .van-info {
         font-size: 16px;
