@@ -65,6 +65,7 @@
         <!-- 评论功能 -->
         <comment-article :articleId="articleId"
                          @onload='EventCommentList'
+                         @replyUser='replyUser'
                          :list='commentList' />
         <!-- 底部区域 -->
         <div class="article-bottom">
@@ -109,16 +110,34 @@
       </div>
       <!-- /加载失败：其它未知错误（例如网络原因或服务端异常） -->
     </div>
+    <!-- 发表评论弹出 -->
     <van-popup v-model="ispostShow"
                position="bottom">
 
       <post-comment :id='article.art_id'
                     @success='onPostSuccess' />
+
     </van-popup>
+    <!-- 发表评论弹出 end -->
+
+    <!-- 评论回复 -->
+    <van-popup v-model="isReplyShow"
+               position="bottom"
+               :style="{ height: '100%' }"
+               closeable
+               close-icon="close">
+      <comment-reply v-if="isReplyShow"
+                     :comment='currentComment' />
+
+    </van-popup>
+
+    <!-- 评论回复end -->
+
   </div>
 </template>
 
 <script>
+import commentReply from './components/comment-reply'
 import postComment from './components/comment-post'
 import commentArticle from './components/article-comment'
 import collectArticle from '@//components/collect-article'
@@ -128,12 +147,18 @@ import { getDetail } from '@/api/artcle'
 import { ImagePreview } from 'vant'
 export default {
   name: 'ArticleIndex',
+  provide: function () {
+    return {
+      art_id: this.articleId
+    }
+  },
   components: {
     followUser,
     collectArticle,
     likeArtcle,
     commentArticle,
-    postComment
+    postComment,
+    commentReply
   },
   props: {
     articleId: {
@@ -149,7 +174,9 @@ export default {
       BtnLoading: false,
       commentCount: 0,
       ispostShow: false, //评论列表控件
-      commentList: []
+      commentList: [],
+      isReplyShow: false, //回复控件
+      currentComment: {} //点击回复获取到的数值
     }
   },
   computed: {},
@@ -208,6 +235,10 @@ export default {
     EventCommentList(data) {
       this.commentList = data.results
       this.commentCount = data.total_count
+    },
+    replyUser(data) {
+      this.currentComment = data //评论用户信息
+      this.isReplyShow = true
     }
   }
 }

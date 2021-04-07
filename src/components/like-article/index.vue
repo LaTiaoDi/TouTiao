@@ -15,7 +15,6 @@ export default {
   name: 'collect',
   props: {
     value: {
-      type: [Object, Number, String],
       required: true
     },
     id: {

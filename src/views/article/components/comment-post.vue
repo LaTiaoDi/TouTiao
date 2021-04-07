@@ -21,6 +21,12 @@
 import { postAddComment } from '@/api/comment'
 export default {
   name: 'CommentPost',
+  inject: {
+    art_id: {
+      type: [Number, String, Object],
+      default: null
+    }
+  },
   components: {},
   props: {
     id: {
@@ -43,8 +49,9 @@ export default {
         const { data } = await postAddComment({
           target: this.id,
           content: this.message,
-          art_id: null
+          art_id: this.art_id ? this.art_id.toString() : null
         })
+        this.$toast.success('发表评论成功')
         this.$emit('success', data)
         this.message = ''
       } catch (error) {

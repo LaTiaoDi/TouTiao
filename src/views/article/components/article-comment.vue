@@ -23,7 +23,8 @@
 
             <span style="margin-right: 10px;">{{ item.pubdate | relativeTime }}</span>
             <van-button size="mini"
-                        type="default">回复</van-button>
+                        type="default"
+                        @click="$emit('replyUser',item)">回复</van-button>
           </p>
         </div>
         <van-icon slot="right-icon"
@@ -51,6 +52,10 @@ export default {
     list: {
       type: Array,
       default: () => []
+    },
+    type: {
+      type: String,
+      default: 'a'
     }
   },
   data() {
@@ -71,8 +76,8 @@ export default {
       const articleComment = this.articleComment
       // 1. 请求获取数据
       const { data } = await getComments({
-        type: 'a', // 评论类型，a-对文章(article)的评论，c-对评论(comment)的回复
-        source: this.articleId, // 源id，文章id或评论id
+        type: this.type, // 评论类型，a-对文章(article)的评论，c-对评论(comment)的回复
+        source: this.articleId.toString(), // 源id，文章id或评论id
         offset: articleComment.offset, // 获取评论数据的偏移量，值为评论id，表示从此id的数据向后取，不传表示从第一页开始读取数据
         limit: 10 // 每页大小
       })
