@@ -21,7 +21,7 @@
                        :src='userInfo.photo' />
             <span class="name">{{userInfo.name}}</span>
           </div>
-          <router-link to=""
+          <router-link to="/user/profile"
                        class="edit-btn">编辑资料</router-link>
         </div>
         <!-- 用户数据 -->

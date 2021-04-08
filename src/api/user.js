@@ -40,3 +40,23 @@ export const unFollow = (target) => {
 		method: 'DELETE',
 	})
 }
+export const getUserProfile = () => {
+	return request({
+		method: 'GET',
+		url: '/v1_0/user/profile',
+	})
+}
+export const patchUser = (data) => {
+	return request({
+		method: 'PATCH',
+		url: '/v1_0/user/profile',
+		data,
+	})
+}
+export function updateUserPhoto(data) {
+	return request({
+		method: 'PATCH',
+		url: '/v1_0/user/photo',
+		data,
+	})
+}
